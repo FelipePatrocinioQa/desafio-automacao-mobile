@@ -1,0 +1,12 @@
+stages:
+  - test
+
+test_job:
+  stage: test
+  image: node:18
+  script:
+    - npm install
+    - npx wdio run wdio.conf.js
+  artifacts:
+    paths:
+      - reports/allure-report

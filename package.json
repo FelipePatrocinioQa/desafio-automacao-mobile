@@ -1,0 +1,29 @@
+{
+  "name": "desafio-automacao-mobile",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FelipePatrocinioQa/desafio-automacao-mobile.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/FelipePatrocinioQa/desafio-automacao-mobile/issues"
+  },
+  "homepage": "https://github.com/FelipePatrocinioQa/desafio-automacao-mobile#readme",
+  "devDependencies": {
+    "@wdio/appium-service": "^9.23.2",
+    "@wdio/cli": "^9.23.2",
+    "allure-commandline": "^2.36.0",
+    "appium": "^3.1.2",
+    "chai": "^6.2.2",
+    "mocha": "^11.7.5"
+  }
+}
