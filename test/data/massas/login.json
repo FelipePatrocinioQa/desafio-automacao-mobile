@@ -1,0 +1,24 @@
+{
+  "validos": [
+    {
+      "name": "login com email e senha válidos",
+      "email": "qa.mobile@example.com",
+      "password": "MobileQA123",
+      "expected": "success"
+    }
+  ],
+  "invalidos": [
+    {
+      "name": "login com email inválido",
+      "email": "email-invalido",
+      "password": "MobileQA123",
+      "expected": "email_error"
+    },
+    {
+      "name": "login com senha curta",
+      "email": "qa.mobile@example.com",
+      "password": "123",
+      "expected": "password_error"
+    }
+  ]
+}

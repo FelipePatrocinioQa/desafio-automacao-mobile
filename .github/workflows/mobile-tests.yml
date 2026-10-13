@@ -1,0 +1,101 @@
+name: Mobile Automation CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  mobile-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      DEMO_APP_APK: /tmp/android.wdio.native.app.v2.2.0.apk
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Setup do Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup do Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup do Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar pacotes do Android
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" "emulator" "extras;intel;Hardware_Accelerated_Execution_Manager" "system-images;android-34;google_apis;x86_64"
+          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/emulator" >> $GITHUB_PATH
+
+      - name: Criar emulador Android
+        run: |
+          echo "no" | avdmanager create avd -n Pixel_5_API_34 -k "system-images;android-34;google_apis;x86_64" --device "pixel_5"
+          echo "hw.gpu.enabled=yes" >> ~/.android/avd/Pixel_5_API_34.avd/config.ini
+          echo "disk.dataPartition.size=8G" >> ~/.android/avd/Pixel_5_API_34.avd/config.ini
+
+      - name: Iniciar emulador
+        run: |
+          nohup $ANDROID_HOME/emulator/emulator -avd Pixel_5_API_34 -no-audio -no-window -gpu swiftshader_indirect > emulator.log 2>&1 &
+          adb wait-for-device
+          adb shell getprop sys.boot_completed
+
+      - name: Instalar dependências do projeto
+        run: npm ci
+
+      - name: Baixar APK do app demo
+        run: |
+          curl -L --fail \
+            https://github.com/webdriverio/native-demo-app/releases/download/v2.2.0/android.wdio.native.app.v2.2.0.apk \
+            -o "$DEMO_APP_APK"
+          ls -l "$DEMO_APP_APK"
+
+      - name: Instalar Appium e driver UiAutomator2
+        run: |
+          npx appium --version
+          npx appium driver install uiautomator2
+
+      - name: Subir Appium
+        run: |
+          nohup npx appium --port 4723 > appium.log 2>&1 &
+          for i in {1..60}; do
+            if curl -sf http://127.0.0.1:4723/status > /dev/null; then
+              break
+            fi
+            sleep 5
+          done
+          curl -sf http://127.0.0.1:4723/status
+
+      - name: Executar testes mobile
+        id: tests
+        run: npx wdio run ./wdio.conf.js
+        continue-on-error: true
+
+      - name: Gerar relatório HTML com Allure
+        if: always()
+        run: |
+          rm -rf ./reports/allure-report ./reports/allure-results
+          npx allure generate ./reports/allure-results --clean -o ./reports/allure-report
+
+      - name: Publicar artefato do relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-html-report
+          path: ./reports/allure-report
+
+      - name: Validar status final dos testes
+        run: exit ${{ steps.tests.outcome == 'success' && 0 || 1 }}

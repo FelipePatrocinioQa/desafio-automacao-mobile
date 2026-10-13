@@ -36,7 +36,3 @@ build/
 # Arquivos de sistema operacional
 .idea/
 *.iml
-
-# Arquivos de lock (opcional, se não quiser versionar)
-package-lock.json
-yarn.lock
