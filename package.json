@@ -1,16 +1,26 @@
 {
   "name": "desafio-automacao-mobile",
   "version": "1.0.0",
-  "description": "",
+  "description": "Projeto de automação mobile com WebdriverIO e Appium para o desafio de testes mobile.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx.cmd wdio run ./wdio.conf.js",
+    "test:spec": "npx.cmd wdio run ./wdio.conf.js --spec",
+    "report": "npx.cmd allure generate ./reports/allure-results --clean -o ./reports/allure-report",
+    "test:report": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"if (Test-Path './reports/allure-report') { Remove-Item -Recurse -Force './reports/allure-report' }; if (Test-Path './reports/allure-results') { Remove-Item -Recurse -Force './reports/allure-results' }; npx.cmd wdio run ./wdio.conf.js; npx.cmd allure generate ./reports/allure-results --clean -o ./reports/allure-report; $job = Start-Process npx.cmd -ArgumentList 'http-server ./reports/allure-report -p 8000 -c-1 --silent' -PassThru -WindowStyle Hidden; Start-Sleep -Seconds 3; Start-Process 'http://localhost:8000'; Write-Host 'Relatorio HTML gerado com sucesso. Acesse: http://localhost:8000'\"",
+    "report:open": "npx.cmd --yes http-server ./reports/allure-report -p 8000 -c-1 --silent"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/FelipePatrocinioQa/desafio-automacao-mobile.git"
   },
-  "keywords": [],
+  "keywords": [
+    "webdriverio",
+    "appium",
+    "mobile",
+    "automation",
+    "qa"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
@@ -19,10 +29,15 @@
   },
   "homepage": "https://github.com/FelipePatrocinioQa/desafio-automacao-mobile#readme",
   "devDependencies": {
+    "@wdio/allure-reporter": "^9.23.2",
     "@wdio/appium-service": "^9.23.2",
     "@wdio/cli": "^9.23.2",
+    "@wdio/local-runner": "^9.23.2",
+    "@wdio/mocha-framework": "^9.23.2",
+    "@wdio/spec-reporter": "^9.23.2",
     "allure-commandline": "^2.36.0",
     "appium": "^3.1.2",
+    "appium-uiautomator2-driver": "^8.7.0",
     "chai": "^6.2.2",
     "mocha": "^11.7.5"
   }

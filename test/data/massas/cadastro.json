@@ -1,0 +1,20 @@
+{
+  "validos": [
+    {
+      "name": "cadastro com senhas iguais e válidas",
+      "email": "qa.mobile@example.com",
+      "password": "MobileQA123",
+      "confirmation": "MobileQA123",
+      "expected": "success"
+    }
+  ],
+  "invalidos": [
+    {
+      "name": "cadastro com confirmação de senha diferente",
+      "email": "qa.mobile@example.com",
+      "password": "MobileQA123",
+      "confirmation": "Different123",
+      "expected": "confirmation_error"
+    }
+  ]
+}

@@ -1,4 +1,20 @@
 [
-  { "username": "user1", "password": "pass1" },
-  { "username": "user2", "password": "pass2" }
+  {
+    "username": "usuario_teste",
+    "password": "senha123",
+    "name": "Usuario Teste",
+    "email": "usuario@test.com"
+  },
+  {
+    "username": "usuario_invalido",
+    "password": "senha_errada",
+    "name": "Usuario Invalido",
+    "email": "invalido@test.com"
+  },
+  {
+    "username": "novo_usuario",
+    "password": "senha456",
+    "name": "Novo Usuario",
+    "email": "novo@teste.com"
+  }
 ]
