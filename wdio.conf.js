@@ -29,9 +29,9 @@ exports.config = {
   capabilities: [
     {
       platformName: 'Android',
-      'appium:deviceName': 'Medium_Phone_API_37.0',
-      'appium:udid': 'emulator-5554',
-      'appium:platformVersion': '37',
+      'appium:deviceName': process.env.ANDROID_DEVICE_NAME || 'Medium_Phone_API_37.0',
+      'appium:udid': process.env.ANDROID_UDID || 'emulator-5554',
+      'appium:platformVersion': process.env.ANDROID_PLATFORM_VERSION || '37',
       'appium:automationName': 'UiAutomator2',
       'appium:app': path.resolve(appPath),
       'appium:newCommandTimeout': 600,

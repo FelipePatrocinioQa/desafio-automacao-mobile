@@ -14,6 +14,8 @@ jobs:
     timeout-minutes: 45
     env:
       DEMO_APP_APK: /tmp/android.wdio.native.app.v2.2.0.apk
+      ANDROID_DEVICE_NAME: Pixel_5_API_34
+      ANDROID_PLATFORM_VERSION: '34'
 
     steps:
       - name: Checkout do código
@@ -51,7 +53,17 @@ jobs:
         run: |
           nohup $ANDROID_HOME/emulator/emulator -avd Pixel_5_API_34 -no-audio -no-window -gpu swiftshader_indirect > emulator.log 2>&1 &
           adb wait-for-device
-          adb shell getprop sys.boot_completed
+          for i in {1..60}; do
+            boot_completed=$(adb shell getprop sys.boot_completed | tr -d '\r')
+            if [ "$boot_completed" = "1" ]; then
+              break
+            fi
+            sleep 5
+          done
+          if [ "$boot_completed" != "1" ]; then
+            echo "Android emulator did not finish booting in time."
+            exit 1
+          fi
 
       - name: Instalar dependências do projeto
         run: npm ci
