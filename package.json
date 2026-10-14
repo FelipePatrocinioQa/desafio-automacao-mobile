@@ -1,14 +1,14 @@
 {
   "name": "desafio-automacao-mobile",
   "version": "1.0.0",
-  "description": "Projeto de automação mobile com WebdriverIO e Appium para o desafio de testes mobile.",
+  "description": "Android mobile UI automation with WebdriverIO, Appium, and Allure.",
   "main": "index.js",
   "scripts": {
-    "test": "npx.cmd wdio run ./wdio.conf.js",
-    "test:spec": "npx.cmd wdio run ./wdio.conf.js --spec",
-    "report": "npx.cmd allure generate ./reports/allure-results --clean -o ./reports/allure-report",
+    "test": "wdio run ./wdio.conf.js",
+    "test:spec": "wdio run ./wdio.conf.js --spec",
+    "report": "allure generate ./reports/allure-results --clean -o ./reports/allure-report",
     "test:report": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"if (Test-Path './reports/allure-report') { Remove-Item -Recurse -Force './reports/allure-report' }; if (Test-Path './reports/allure-results') { Remove-Item -Recurse -Force './reports/allure-results' }; npx.cmd wdio run ./wdio.conf.js; npx.cmd allure generate ./reports/allure-results --clean -o ./reports/allure-report; $job = Start-Process npx.cmd -ArgumentList 'http-server ./reports/allure-report -p 8000 -c-1 --silent' -PassThru -WindowStyle Hidden; Start-Sleep -Seconds 3; Start-Process 'http://localhost:8000'; Write-Host 'Relatorio HTML gerado com sucesso. Acesse: http://localhost:8000'\"",
-    "report:open": "npx.cmd --yes http-server ./reports/allure-report -p 8000 -c-1 --silent"
+    "report:open": "allure open ./reports/allure-report"
   },
   "repository": {
     "type": "git",

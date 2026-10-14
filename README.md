@@ -1,53 +1,41 @@
-# Mobile Automation with WebdriverIO + Appium
+# 📱 Mobile Automation | WebdriverIO + Appium
 
-Projeto de automação mobile para execução em Android utilizando WebdriverIO, Appium, Mocha e Allure Report.
+Automação de testes de interface Android com WebdriverIO, Appium, Mocha e Allure Report. O projeto exercita fluxos de autenticação e componentes de formulário no app de demonstração nativo do WebdriverIO, tanto em emulador local quanto no GitHub Actions.
 
-O objetivo deste repositório é automatizar fluxos reais do app `native-demo-app` e permitir a execução local e em pipeline de CI com relatórios de execução em HTML.
+[Repositório](https://github.com/FelipePatrocinioQa/desafio-automacao-mobile) · [Execuções do CI](https://github.com/FelipePatrocinioQa/desafio-automacao-mobile/actions) · [Baixar o app Android](https://github.com/webdriverio/native-demo-app/releases/download/v2.2.0/android.wdio.native.app.v2.2.0.apk)
 
----
+## 🧭 Navegação
 
-## Visão geral
-
-Este projeto cobre cenários de:
-- login
-- cadastro
-- validação de mensagens de erro
-- formulário
-- switch
-- dropdown
-- botão ativo
-
-A estrutura foi organizada em camadas para facilitar manutenção e reutilização:
-- Page Objects para abstrair elementos e ações de cada tela
-- massas em JSON para dados de teste
-- suíte de testes em WebdriverIO
-- relatório Allure para evidência de execução
-- workflow do GitHub Actions para execução automatizada
+[Visão geral](#visão-geral) · [Estrutura](#estrutura-do-projeto) · [Pré-requisitos](#pré-requisitos) · [Configuração](#configuração-local-windows) · [Testes](#cenários-automatizados) · [Relatórios](#relatórios-allure) · [CI](#integração-contínua)
 
 ---
 
-## Stack utilizada
+## ✨ Visão geral
 
-- JavaScript
-- Node.js
-- WebdriverIO
-- Appium
-- Mocha
-- Chai
-- Allure Report
+O projeto reúne dez cenários automatizados, Page Objects, dados externos em JSON e evidências Allure. Os cadastros válidos usam e-mail único gerado durante a execução, evitando colisões entre execuções sucessivas.
+
+## 🧰 Tecnologias e documentação
+
+- [Node.js LTS](https://nodejs.org/en/download)
+- [Java JDK 17 (Eclipse Temurin)](https://adoptium.net/temurin/releases/?version=17)
+- [Android Studio e Android SDK](https://developer.android.com/studio)
+- [Appium](https://appium.io/docs/en/latest/)
+- [Driver UiAutomator2](https://appium.github.io/appium.io/docs/en/drivers/android-uiautomator2/)
+- [WebdriverIO](https://webdriver.io/docs/gettingstarted)
+- [Allure Report](https://allurereport.org/docs/)
+
+O Appium CLI e o driver UiAutomator2 são instalados como dependências do projeto; não é necessário instalar o Appium globalmente.
 
 ---
 
-## Estrutura do projeto
+## 🗂️ Estrutura do projeto
 
 ```text
 desafio-automacao-mobile/
 ├── .github/
 │   └── workflows/
 │       └── mobile-tests.yml
-├── reports/
-│   ├── allure-results/
-│   └── allure-report/
+├── reports/                    # relatórios gerados localmente (ignorados pelo Git)
 ├── test/
 │   ├── data/
 │   │   └── massas/
@@ -55,49 +43,60 @@ desafio-automacao-mobile/
 │   │       ├── cadastro.json
 │   │       └── formulario.json
 │   ├── pageobjects/
-│   │   ├── BasePage.js
 │   │   ├── FormPage.js
 │   │   ├── LoginPage.js
-│   │   └── ...
+│   │   └── BasePage.js
 │   └── specs/
 │       └── desafio-mobile.spec.js
 ├── .gitignore
-├── .gitlab-ci.yml
 ├── package.json
+├── package-lock.json
 ├── wdio.conf.js
-├── README.md
-└── package-lock.json
+└── README.md
 ```
 
-### O que fica em cada pasta
+### Como as partes se conectam
 
-- `.github/workflows/`: pipeline de execução em GitHub Actions
-- `reports/`: artefatos de execução e relatório HTML do Allure
-- `test/data/massas/`: arquivos JSON com massas de teste
-- `test/pageobjects/`: mapeamento dos elementos e ações de cada tela
-- `test/specs/`: cenários executáveis da automação
-- `wdio.conf.js`: configuração central do WebdriverIO e Appium
-- `package.json`: scripts e dependências do projeto
+```mermaid
+flowchart TD
+  repo["Projeto"] --> tests["test/specs<br/>Cenários Mocha"]
+  tests --> pages["test/pageobjects<br/>Ações e seletores"]
+  tests --> data["test/data/massas<br/>Dados JSON"]
+  pages --> app["App Android<br/>Appium + UiAutomator2"]
+  config["wdio.conf.js<br/>Capabilities e reporters"] --> tests
+  config --> app
+  tests --> allure["reports/allure-results"]
+  allure --> html["reports/allure-report<br/>HTML"]
+  workflow[".github/workflows<br/>GitHub Actions"] --> config
+```
+
+GitHub renderiza este diagrama diretamente no README. A árvore abaixo mostra os principais arquivos versionados; `reports/` é criado durante a execução e fica fora do Git.
+
+### Responsabilidade das pastas
+
+- `.github/workflows/`: pipeline Android no GitHub Actions
+- `test/data/massas/`: entradas de teste em JSON
+- `test/pageobjects/`: seletores e ações reutilizáveis das telas
+- `test/specs/`: cenários e validações
+- `wdio.conf.js`: capabilities, conexão Appium e reporter Allure
+- `reports/`: resultados brutos e relatório HTML gerados localmente
 
 ---
 
-## Pré-requisitos
+## ✅ Pré-requisitos
 
 Antes de executar o projeto, verifique se os itens abaixo estão instalados:
 
-### 1. Node.js
+### Node.js LTS e Java 17
 ```bash
 node -v
 npm -v
-```
-
-### 2. Java JDK
-```bash
 java -version
 ```
 
-### 3. Android Studio + Android SDK
-Instale o Android Studio e certifique-se de que os caminhos abaixo existam:
+### Android Studio e SDK
+
+Instale pelo Android Studio o Android SDK, Platform Tools, Emulator e uma imagem de sistema para API 37 (execução local padrão). O workflow do GitHub usa API 34.
 
 ```powershell
 $env:LOCALAPPDATA\Android\Sdk
@@ -109,170 +108,132 @@ adb version
 emulator -list-avds
 ```
 
-### 4. Appium
+Confirme que `adb` e `emulator` estão no `PATH`:
 ```powershell
-npx appium --version
-```
-
-Se necessário, instale o Appium CLI e o driver do Android:
-
-```powershell
-npx appium driver install uiautomator2
+adb version
+emulator -list-avds
 ```
 
 ---
 
-## Variáveis de ambiente
+## ⚙️ Variáveis de ambiente
 
-O projeto lê a variável `DEMO_APP_APK` no arquivo [wdio.conf.js](wdio.conf.js). Quando ela não é informada, o projeto usa um caminho local padrão de exemplo.
+O WDIO aceita o caminho do APK e os dados do dispositivo via variáveis de ambiente. Os valores padrão são para o emulador local; o workflow define os valores próprios do runner.
 
-### Configuração local no Windows (PowerShell)
+## Configuração local (Windows)
+
+### 1. Configure as variáveis no PowerShell
+
+Atualize o caminho de `JAVA_HOME` para a pasta do JDK instalado. Estas definições valem para o terminal atual. No PowerShell, use `npm.cmd` para evitar bloqueios de execução do shim `npm.ps1`:
 
 ```powershell
 $env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
 $env:ANDROID_SDK_ROOT = "$env:LOCALAPPDATA\Android\Sdk"
-$env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
-$env:DEMO_APP_APK = "C:\wdio-native-demo-app-v2.2.0\apps\release\android.wdio.native.app.v2.2.0.apk"
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17"
+$env:DEMO_APP_APK = "$env:USERPROFILE\Downloads\android.wdio.native.app.v2.2.0.apk"
 
 $env:Path += ";$env:ANDROID_HOME\platform-tools;$env:ANDROID_HOME\emulator;$env:JAVA_HOME\bin"
 ```
 
-Depois disso, valide as variáveis:
+Baixe o APK oficial para o caminho configurado:
 
 ```powershell
-$env:ANDROID_HOME
-$env:JAVA_HOME
-$env:DEMO_APP_APK
-adb version
+Invoke-WebRequest `
+  -Uri "https://github.com/webdriverio/native-demo-app/releases/download/v2.2.0/android.wdio.native.app.v2.2.0.apk" `
+  -OutFile $env:DEMO_APP_APK
 ```
 
-### Configuração no GitHub Actions
+Variáveis disponíveis: `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `JAVA_HOME`, `DEMO_APP_APK`, `ANDROID_DEVICE_NAME`, `ANDROID_UDID` e `ANDROID_PLATFORM_VERSION`. `ANDROID_DEVICE_NAME`, `ANDROID_UDID` e `ANDROID_PLATFORM_VERSION` são opcionais; os padrões locais estão em `wdio.conf.js`.
 
-No workflow da pipeline, a variável também é configurada de forma explícita:
+### 2. Instale as dependências e o driver Appium
 
-```yaml
-env:
-  DEMO_APP_APK: /tmp/android.wdio.native.app.v2.2.0.apk
-```
-
-Essa variável é usada para baixar o APK do app demo antes da execução dos testes em CI.
-
----
-
-## Setup do ambiente local
-
-### 1. Instale as dependências
 ```powershell
-cd C:\WorkSpace\Repositorios\desafio-automacao-mobile
-npm install
+npm.cmd ci
+npx appium driver install uiautomator2
 ```
 
-### 2. Inicie o Android Emulator
-Liste os emuladores disponíveis:
+### 3. Inicie e valide o emulador
 ```powershell
 & "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -list-avds
-```
-
-Inicie o emulador desejado:
-```powershell
 & "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd Medium_Phone_API_37.0
-```
-
-### 3. Verifique se o emulador está pronto
-```powershell
 adb devices
 adb -s emulator-5554 wait-for-device
 adb -s emulator-5554 shell getprop sys.boot_completed
 ```
 
-O retorno esperado para a última instrução é:
-```text
-1
-```
+Espere o Android terminar de inicializar; `sys.boot_completed` deve retornar `1`.
 
-### 4. Inicie o Appium
-Em outro terminal:
+### 4. Inicie o Appium e rode a suíte
+
+Em um segundo terminal, inicie o servidor:
 ```powershell
-cd C:\WorkSpace\Repositorios\desafio-automacao-mobile
-npx.cmd appium --port 4723
+npx appium --port 4723
 ```
 
-### 5. Verifique o Appium
+Confira o status e, em outro terminal, execute os testes:
 ```powershell
 Invoke-RestMethod http://127.0.0.1:4723/status
+npm.cmd test
 ```
 
-Se estiver funcionando, o servidor responderá com status do Appium.
+## 🧪 Cenários automatizados
+
+| # | Cobertura |
+|---|---|
+| 01 | Login com credenciais válidas |
+| 02 | Validação de e-mail inválido |
+| 03 | Validação de senha curta |
+| 04 | Cadastro válido com e-mail único |
+| 05 | Validação de confirmação de senha divergente |
+| 06 | Exibição do texto digitado |
+| 07 | Limite de 30 caracteres no campo |
+| 08 | Alternância do switch e atualização da mensagem |
+| 09 | Seleção de opção no dropdown |
+| 10 | Alerta do botão ativo |
+
+Execute todos os cenários com `npm.cmd test`. Para filtrar um teste pelo título, use o runner do Mocha via WDIO:
+
+```powershell
+npm.cmd test -- --mochaOpts.grep "login com credenciais válidas"
+```
 
 ---
 
-## Execução dos testes
+## 📊 Relatórios Allure
 
-### Rodar a suíte completa
-```powershell
-cd C:\WorkSpace\Repositorios\desafio-automacao-mobile
-npx.cmd wdio run ./wdio.conf.js
-```
-
-Ou via script do projeto:
-```powershell
-npm test
-```
-
-### Rodar um cenário específico
-```powershell
-npx.cmd wdio run ./wdio.conf.js --spec ./test/specs/desafio-mobile.spec.js
-```
-
----
-
-## Geração de relatórios com Allure
-
-Os testes já estão configurados para gerar resultados em JSON e em HTML via Allure.
+O reporter grava os resultados brutos em `reports/allure-results`. O relatório HTML é gerado separadamente:
 
 ### Gerar o relatório HTML
 ```powershell
 cd C:\WorkSpace\Repositorios\desafio-automacao-mobile
-npx.cmd allure generate ./reports/allure-results --clean -o ./reports/allure-report
+npm.cmd run report
 ```
 
 ### Abrir o relatório localmente
 ```powershell
-npx.cmd --yes http-server ./reports/allure-report -p 8000 -c-1 --silent
+npm.cmd run report:open
 ```
 
 Depois acesse:
 ```text
-http://localhost:8000
+O Allure inicia um servidor local e abre o relatório no navegador. Não abra `index.html` diretamente como arquivo.
 ```
 
 ---
 
-## Scripts prontos no projeto
+### Comando integrado no Windows
 
-No [package.json](package.json) há scripts úteis para execução rápida:
+O script abaixo limpa os resultados antigos, executa a suíte, gera o HTML e abre o relatório. Requer PowerShell:
 
 ```powershell
-npm test
-npm run report
-npm run test:report
-npm run report:open
+npm.cmd run test:report
 ```
 
-### Script recomendado para execução completa
-```powershell
-npm run test:report
-```
-
-Esse comando:
-- apaga relatórios antigos
-- executa a suíte
-- gera o HTML do Allure
-- abre a página de relatório localmente
+Os scripts `test`, `test:spec`, `report` e `report:open` também estão disponíveis individualmente no [package.json](package.json).
 
 ---
 
-## Dados de teste (data-driven)
+## 🧾 Dados de teste (data-driven)
 
 Os dados dos testes ficam em arquivos JSON dentro de `test/data/massas/`, e são importados diretamente pela suíte.
 
@@ -288,35 +249,27 @@ Esse padrão permite:
 
 ---
 
-## Observações importantes
+## 🤖 Integração contínua
 
-- O projeto foi configurado para uso local com Android emulador.
-- A criação da sessão mobile depende do emulador estar pronto e do Appium responder em `http://localhost:4723`.
-- Os relatórios são armazenados em `reports/` e devem ser limpos antes de uma nova execução para manter o ambiente organizado.
-- O app alvo é o `native-demo-app` da WebdriverIO, utilizado como base para a automação mobile.
+O workflow [mobile-tests.yml](.github/workflows/mobile-tests.yml) roda em pull requests, pushes para `main`/`master` e manualmente. Ele configura Node.js e Java, inicia um emulador Android API 34, instala Appium/UiAutomator2, baixa o APK e executa a suíte. O relatório Allure é publicado como artefato mesmo quando os testes falham.
 
----
+Na execução local, o WDIO usa por padrão o emulador Android API 37. O workflow informa `ANDROID_PLATFORM_VERSION=34` para corresponder ao emulador de CI; isso evita divergência entre a capability solicitada e o dispositivo real.
 
-## Fluxo recomendado de execução
+## 💡 Diferenciais técnicos
 
-1. Instalar Node.js, Java e Android SDK
-2. Criar ou selecionar um emulador Android
-3. Iniciar o emulador
-4. Verificar `adb devices`
-5. Iniciar o Appium
-6. Validar `http://localhost:4723/status`
-7. Executar `npm test`
-8. Gerar relatório com `npm run report`
-9. Abrir a página HTML localmente
+- Page Object Model separa interação com a tela da lógica dos cenários.
+- Massas JSON mantêm dados fora dos testes e tornam os fluxos fáceis de revisar.
+- Cadastro com e-mail único permite repetir a suíte sem colisões de usuário.
+- Screenshots em falhas e relatório Allure facilitam a análise de regressões.
+- GitHub Actions valida PRs em emulador Android e publica relatório como artefato.
 
----
+## 🔎 Diagnóstico rápido
 
-## Resultado esperado
-
-Ao final da execução, o projeto deve:
-- abrir o app no emulador
-- executar os cenários definidos
-- gerar evidências em JSON e HTML
-- permitir análise de falhas e acompanhamento dos testes
+- `adb devices` não lista o emulador: confirme o AVD e aguarde o boot completo (`sys.boot_completed` deve ser `1`).
+- Erro ao criar sessão: confira o status do Appium em `http://127.0.0.1:4723/status` e se a versão Android configurada corresponde ao emulador.
+- App não encontrado: confira se `DEMO_APP_APK` aponta para o APK baixado.
+- `npm ci` falha: confirme que `package-lock.json` está presente e versionado.
+- `npm.cmd ci` falha: confirme que `package-lock.json` está presente e versionado.
+- Falha no GitHub Actions: abra o job em [Actions](https://github.com/FelipePatrocinioQa/desafio-automacao-mobile/actions) e consulte a primeira etapa com erro.
 
 
